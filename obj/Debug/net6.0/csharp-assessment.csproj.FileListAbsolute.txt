@@ -1,0 +1,15 @@
+D:\RiderProjects\csharp-assessment\bin\Debug\net6.0\csharp-assessment.exe
+D:\RiderProjects\csharp-assessment\bin\Debug\net6.0\csharp-assessment.deps.json
+D:\RiderProjects\csharp-assessment\bin\Debug\net6.0\csharp-assessment.runtimeconfig.json
+D:\RiderProjects\csharp-assessment\bin\Debug\net6.0\csharp-assessment.dll
+D:\RiderProjects\csharp-assessment\bin\Debug\net6.0\csharp-assessment.pdb
+D:\RiderProjects\csharp-assessment\obj\Debug\net6.0\csharp-assessment.csproj.AssemblyReference.cache
+D:\RiderProjects\csharp-assessment\obj\Debug\net6.0\csharp-assessment.GeneratedMSBuildEditorConfig.editorconfig
+D:\RiderProjects\csharp-assessment\obj\Debug\net6.0\csharp-assessment.AssemblyInfoInputs.cache
+D:\RiderProjects\csharp-assessment\obj\Debug\net6.0\csharp-assessment.AssemblyInfo.cs
+D:\RiderProjects\csharp-assessment\obj\Debug\net6.0\csharp-assessment.csproj.CoreCompileInputs.cache
+D:\RiderProjects\csharp-assessment\obj\Debug\net6.0\csharp-assessment.dll
+D:\RiderProjects\csharp-assessment\obj\Debug\net6.0\refint\csharp-assessment.dll
+D:\RiderProjects\csharp-assessment\obj\Debug\net6.0\csharp-assessment.pdb
+D:\RiderProjects\csharp-assessment\obj\Debug\net6.0\csharp-assessment.genruntimeconfig.cache
+D:\RiderProjects\csharp-assessment\obj\Debug\net6.0\ref\csharp-assessment.dll
