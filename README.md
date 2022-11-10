@@ -20,11 +20,13 @@ Create a dictionary with the events' cities as keys and a sorted (by distance to
 Take the 5 first events in the customer's city's list, as they're sorted by distance.
 # 3. 
 Assuming **Customer{ Name = "John Smith", City = "New York"}**, and assuming alphabetical distance, email will contain the following events:
-Phantom of the Opera in New York
-Metallica in New York
-LadyGaGa in New York
-Metallica in Los Angeles
+Phantom of the Opera in New York, 
+Metallica in New York, 
+LadyGaGa in New York, 
+Metallica in Los Angeles, 
 LadyGaGa in San Francisco
+# 4.
+Skipping already-computed cities gives great performance gains when scaled up. Additionally, like before, it might be better to use IEnumerable.
 
 ## Question 3
 Limiting the amount of times the operation is done by pre-computing the distances in a dictionary (hash), and checking if a city has already been computed instead of overwriting.
