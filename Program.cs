@@ -1,48 +1,52 @@
-﻿internal class Event
+﻿namespace Viagogo;
+
+public class Event
 {
-    public string Name { get; set; }
-    public string City { get; set; }
+    public string Name{ get; set; }
+    public string City{ get; set; }
 }
-
-internal class Customer
+public class Customer
 {
-    public string Name { get; set; }
-    public string City { get; set; }
+    public string Name{ get; set; }
+    public string City{ get; set; }
 }
-
-static class Program
+    
+public static class Solution
 {
-    private static void AddToEmail(Customer customer, Event @event)
-    {
-        Console.WriteLine($"Sent email about {@event.Name} in [{@event.City}] to {customer.Name} in [{customer.City}]");
-    }
+    private static readonly Dictionary<(string, string), int> Distances = new();
 
-    private static int GetDistance(string cityA, string cityB)
+
+    // Wrapper method for GetDistance. It takes care of the caching and the retrying/exception handling.
+    static int GetDistanceWrapper(string cityA, string cityB, int tries=1)
     {
-        var distance = 0;
-        for (var i = 0; i < Math.Min(cityA.Length, cityB.Length); i++)
+        if (!Distances.TryGetValue((cityA, cityB), out var distance) 
+            && !Distances.TryGetValue((cityB, cityA), out distance))
         {
-            distance += Math.Abs(cityA[0] - cityB[0]);
+            while (tries > 0)
+            {
+                try
+                {
+                    distance = GetDistance(cityA, cityB);
+                    break;
+                }
+                catch (TimeoutException)
+                {
+                    Console.WriteLine("Retrying...");
+                    tries--;
+                }
+                catch (HttpRequestException e)
+                {
+                    Console.WriteLine($"Got {e} with {cityA} and {cityB}");
+                    throw;
+                }
+            }
+            Distances[(cityA, cityB)] = distance;
         }
+
         return distance;
     }
 
-    // Question 4
-    private static int GetDistanceSafe(string cityA, string cityB)
-    {
-        try
-        {
-            return GetDistance(cityA, cityB);
-        }
-        catch (Exception e)
-        {
-            return int.MaxValue;
-        }
-    }
-
-    private static int GetPrice(Event @event) => @event.Name.Length;
-
-    private static void Main(string[] args)
+    private static void Main()
     {
         var events = new List<Event>{
             new() { Name = "Phantom of the Opera", City = "New York"},
@@ -55,74 +59,80 @@ static class Program
             new() { Name = "LadyGaGa", City = "San Francisco"},
             new() { Name = "LadyGaGa", City = "Washington"}
         };
-        var customers = new List<Customer>{
-            new (){ Name = "Nathan", City = "New York"},
-            new (){ Name = "Bob", City = "Boston"},
-            new (){ Name = "Cindy", City = "Chicago"},
-            new (){ Name = "Lisa", City = "Los Angeles"},
-            
-            new (){ Name = "John Smith", City = "New York"}
+        var customers = new List<Customer>()
+        {
+            new() { Name = "Bob", City = "Boston"},
+            new() { Name = "Nathan", City = "New York"},
+            new() { Name = "Cindy", City = "Chicago"},
+            new() { Name = "Lisa", City = "Los Angeles"},
+            new() {Name = "John Smith", City = "New York"}
         };
         
-        Console.WriteLine("Question 1:");
-        Question1(events, customers);
-        Console.WriteLine("Question 2:");
-        Question2(events, customers);
-        Console.WriteLine("Question 5:");
-        Question5(events, customers);
-    }
-
-    private static void Question1(List<Event> events, List<Customer> customers)
-    {
-        var pairs = customers
-            .Join(events, customer => customer.City, @event => @event.City,
-            (customer, @event) => (customer, @event));
-
-        foreach (var pair in pairs)
+        //1. Add events that will happen in the city of each customer to email
+        var pairs1 = customers
+            .Join(events, customer => customer.City, @event => @event.City, (customer, @event) => (customer, @event));
+        foreach(var item in pairs1)
         {
-            AddToEmail(pair.customer, pair.@event);
+            AddToEmail(item.customer, item.@event);
+        }
+        
+        // 2. Add 5 nearest events to each customer to email
+        var pairs2 = customers
+            .SelectMany(customer => events
+                .OrderBy(@event =>
+                    GetDistanceWrapper(customer.City, @event.City, 3))
+                .Take(5)
+                .Select(@event => (customer, @event)));
+        foreach (var pair in pairs2)
+        {
+            AddToEmail(pair.customer, pair.@event, GetPrice(pair.@event));
+        }
+    
+        // 3. Same as 2. but sort by price instead.
+        var pairs3 = customers
+            .SelectMany(customer => events
+                .OrderBy(GetPrice)
+                .Take(5)
+                .Select(@event => (customer, @event)));
+        foreach (var pair in pairs3)
+        {
+            AddToEmail(pair.customer, pair.@event, GetPrice(pair.@event));
         }
     }
 
-    private static void Question2(List<Event> events, List<Customer> customers)
+    // You do not need to know how these methods work
+    static void AddToEmail(Customer c, Event e, int? price = null)
     {
-        const int nEvents = 5;
-        var nearestEvents = new Dictionary<string, IEnumerable<Event>>();
-        foreach (var @event in events)
-        {
-            if (nearestEvents.ContainsKey(@event.City))
-                continue;
-            nearestEvents[@event.City] = events
-                .OrderBy(e => GetDistanceSafe(@event.City, e.City))
-                .Take(nEvents);
-        }
-        var pairs = customers
-            .SelectMany(customer => nearestEvents[customer.City], (customer, @event) => new {customer, @event});
-        foreach (var pair in pairs)
-        {
-            AddToEmail(pair.customer, pair.@event);
-        }
+        var distance = GetDistance(c.City, e.City);
+        Console.Out.WriteLine($"{c.Name}: {e.Name} in {e.City}"
+                              + (distance > 0 ? $" ({distance} miles away)" : "")
+                              + (price.HasValue ? $" for ${price}" : ""));
     }
 
-    private static void Question5(List<Event> events, List<Customer> customers)
+    static int GetPrice(Event e)
     {
-        const int nEvents = 5;
-        var nearestEvents = new Dictionary<string, IEnumerable<Event>>();
-        foreach (var @event in events)
+        return (AlphebiticalDistance(e.City, "") + AlphebiticalDistance(e.Name, "")) / 10;
+    }
+
+    static int GetDistance(string fromCity, string toCity)
+    {
+        return AlphebiticalDistance(fromCity, toCity);
+    }
+
+    private static int AlphebiticalDistance(string s, string t)
+    {
+        var result = 0;
+        var i = 0;
+        for(i = 0; i < Math.Min(s.Length, t.Length); i++)
         {
-            if (nearestEvents.ContainsKey(@event.City))
-                continue;
-            nearestEvents[@event.City] = events
-                .OrderBy(e => GetDistanceSafe(@event.City, e.City))
-                .ThenBy(GetPrice)
-                //.ThenBy(GetField) (...)
-                .Take(nEvents);
+            // Console.Out.WriteLine($"loop 1 i={i} {s.Length} {t.Length}");
+            result += Math.Abs(s[i] - t[i]);
         }
-        var pairs = customers
-            .SelectMany(customer => nearestEvents[customer.City], (customer, @event) => new {customer, @event});
-        foreach (var pair in pairs)
+        for(; i < Math.Max(s.Length, t.Length); i++)
         {
-            AddToEmail(pair.customer, pair.@event);
+            // Console.Out.WriteLine($"loop 2 i={i} {s.Length} {t.Length}");
+            result += s.Length > t.Length ? s[i] : t[i];
         }
+        return result;
     }
 }

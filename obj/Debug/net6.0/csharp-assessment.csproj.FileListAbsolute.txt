@@ -13,3 +13,8 @@ D:\RiderProjects\csharp-assessment\obj\Debug\net6.0\refint\csharp-assessment.dll
 D:\RiderProjects\csharp-assessment\obj\Debug\net6.0\csharp-assessment.pdb
 D:\RiderProjects\csharp-assessment\obj\Debug\net6.0\csharp-assessment.genruntimeconfig.cache
 D:\RiderProjects\csharp-assessment\obj\Debug\net6.0\ref\csharp-assessment.dll
+D:\RiderProjects\csharp-assessment\bin\Debug\net6.0\FSharp.Core.dll
+D:\RiderProjects\csharp-assessment\bin\Debug\net6.0\Linq.Expression.Optimizer.dll
+D:\RiderProjects\csharp-assessment\bin\Debug\net6.0\runtimes\any\native\FSharp.Core.optdata
+D:\RiderProjects\csharp-assessment\bin\Debug\net6.0\runtimes\any\native\FSharp.Core.sigdata
+D:\RiderProjects\csharp-assessment\obj\Debug\net6.0\csharp-assessment.csproj.CopyComplete
