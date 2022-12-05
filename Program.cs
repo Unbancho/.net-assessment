@@ -46,7 +46,7 @@ public static class Solution
         return distance;
     }
 
-    private static void Main()
+    private static void Main_()
     {
         var events = new List<Event>{
             new() { Name = "Phantom of the Opera", City = "New York"},
